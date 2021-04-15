@@ -16,20 +16,35 @@
 In this project, through bioinformatic resources, we have developed a python based program capable of reconstructing biological macro-complexes of protein-protein and protein-DNA/RNA interactions using pairs of binary chain interactions. Also, the final complex can be set to have a specific number of chains. The program is based on several bioinformatic tools, including structural superimposition, and energy optimization. It creates a structure pdb file with the reconstructed macrocomplex. The main dependencies of the software are BioPython, NumPy , pysimplelog and Modeller packages. This program can be downloaded from \url{https://github.com/ferranpgp/McComplex}.
 
 ## Table of Content
-- [What is McComplex?](#What-McComplex-is?)
+- [What McComplex is?](#What-McComplex-is?)
 - [Biological Background](#Biological-Background)
-        - [Structural superimposition](#Structural superimposition)
-        - [Examples](#examples)
-- [McComplex method](#McComplex-method)
-        - [Superimposition of the 3D structure](#Superimposition-of-the-3D-structure)
-        - [Checking number of clashes](#Checking-number-of-clashes)
-        - [Optimization](#Optimization)
+    - [Protein-Protein Interaction and Complexes](#Protein-Protein-Interaction-and-Complexes)
+       - [Structural superimposition](#Structural-superimposition)
+- [McComplex method](#McComplex-method) 
+    - [Superimposition of the 3D structure](#Superimposition-of-the-3D-structure)
+    - [Checking number of clashes](#Checking-number-of-clashes)
+    -  [Optimization](#Optimization)
 - [Algorithm](#Algorithm)
-- [Tutorial](#Tutorial)
+    - [Features](#Features)
+    - [Future approaches](#Future-approaches)
+- [Tutorial](##Tutorial)
+    - [Dependencies Installation](#Dependencies-Installation)
+    - [Clone repository](#Clone-repository)
+    - [Command line arguments](#Command-line-arguments)
+        - [Mandatory arguments](#Mandatory-arguments)
+        - [Optional arguments](#Optional-arguments)
+    - [Analysis examples](#Analysis-examples)
+    - [Performance](#Performance)
+        - [Structure of the program](#Structure-of-the-program)
 
 
 - [Limitations](#limitations)
+
 - [Team](#team)
+
+- [Bibliography](#Bibliography)
+
+  <div style="page-break-after: always; visibility: hidden"> </div>
 
 # What is McComplex?
 
