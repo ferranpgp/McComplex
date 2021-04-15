@@ -17,7 +17,7 @@ In this project, through bioinformatic resources, we have developed a python bas
 - [What McComplex is?](#What-McComplex-is?)
 - [Biological Background](#Biological-Background)
     - [Protein-Protein Interaction and Complexes](#Protein-Protein-Interaction-and-Complexes)
-       - [Structural superimposition](#Structural superimposition)
+       - [Structural superimposition](#Structural-superimposition)
 - [McComplex method](#McComplex-method) 
     - [Superimposition of the 3D structure](#Superimposition-of-the-3D-structure)
     - [Checking number of clashes](#Checking-number-of-clashes)
