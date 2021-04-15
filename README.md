@@ -307,7 +307,7 @@ The resulting structure is stored in the current directory, `4r3o`, in the folde
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :----: | :----: | :----: |
-| <img src="Images/4r3o/4r3o_McCOMP.png" width="300" height="280"> | <img src="Images/5OOM_BUILT.png" width="300" height="280"> | <img src="Images/4r3o/4r3o_RMSD000_250PRUNED.png" width="300" height="280"> |
+| <img src="Images/4r3o/4r3o_McCOMP.png" width="300" height="280"> | <img src="Images/4r3o/4r3o_ref.png" width="300" height="280"> | <img src="Images/4r3o/4r3o_RMSD000_250PRUNED.png" width="300" height="280"> |
 
 The input folder has 86 files and 28 different chains and we can see that after 155 interations the total number of chains were built. 
 The computation time is around 1621 seconds  seconds and  using Chimera we computed the RMSD between 250 pruned atom pairs and obtained a result of 0.000 angstroms.
