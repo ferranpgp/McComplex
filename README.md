@@ -354,10 +354,5 @@ Keskin, O. , Tuncbag, N. , Gursoy, A. Predicting protein-protein interactions fr
 
 ```
 
-<<<<<<< HEAD
-```
-=======
-```
->>>>>>> b409bac90b55f463226d82d3943c211f78527787
 
 ```
