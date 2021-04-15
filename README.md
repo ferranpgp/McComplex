@@ -36,6 +36,11 @@ In this project, through bioinformatic resources, we have developed a python bas
 McComplex is a Python program whose goal is to model macrocomplexes molecules from pairs of chains of a structure that will form the complex. It can build complexes from proteins chains, DNA and RNA strands. It also allow us to set some parameters to adjust the final complex according to the users needs.
 In essence, the builder approach is the superimpositions of structures between subunit chains from different PDB files given as input. The builder places pair by pair all the possible chains into a single model, and adds the chains that do not clash more that a given threshold.
 
+## Features
+The most distinct features of McComplex are:
+1. Building of macromolecular complexes from  binary interaction PDB files as input. 
+2. Optimization of the final model using MODELLER.
+
 
 # Biological Background
 
@@ -61,7 +66,7 @@ Where *n* is the number of atom pairs that will be compared, *v* and *w* are the
 
 The main disadvantage of the RMSD lies in the fact that it is dominated by the amplitudes of errors. Two structures that are identical with the exception of a position of a single loop or a flexible terminus typically have a large global backbone RMSD and cannot be effectively superimposed by any algorithm that optimises the global RMSD.(Kufareva. I. et al. 2015). However it is easy and fast way to analyse the similarity of two structures.
 
-# McComplex method
+# McComplex approach
 
 The approach of our program is the superimpositions between subunit chains using the module Superimposer from Bio.PDB. The algorithm can be divided in three steps. The first step is the performance of the superimposition of the binary protein structures. The second one is, energy levels in the models are taken into account to discard unlikely complexes. Lastly, it could do the the optimisation of the energy of the models if it is desired.
 
@@ -77,7 +82,7 @@ After the superimposition, if the RMSD is acceptable under our threshold, it has
 Once the model is generated, we can perform an optimization of the structure with Conjugate Gradients and Molecular Dynamics, using Modeller. The restraints selected are stereochemical(bond, angle, dihedral, torsion and improper) and the temperature to 300k, with a maximum of 50 iterations. The stats are written every 5 iteration in a log file.
 
 
-##### Stereochemical restraints from Modeller :
+*Stereochemical restraints from Modeller* :
 
 * 'BOND'. Calculates covalent bond restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those bonds are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
 * 'ANGLE'. Calculates covalent angle restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those angles are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
@@ -85,26 +90,37 @@ Once the model is generated, we can perform an optimization of the structure wit
 * 'IMPROPER'. This calculates improper dihedral angle restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those impropers are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
 * 'STEREO'. This implies all 'BOND', 'ANGLE', 'DIHEDRAL', and 'IMPROPER' restraints.
 
+### Structure of the program
+
+#### McComplex
+
+- `McComplex_builder.py`: main module of Complex Constructor. It connects with all the rest of modules.
+
+- `McComplex_functions.py`: module with all the functions needed to run the construction of macrocomplexes, as the `McComplex` function and `dictionary superimpositor`.
+
+- `parse_logger.py`: reads and organises the command-line arguments. Also it imports and initiates the logger
+
+- `optimization.py`: Modeller optimization script.
+
+- `sequence_data.py`: utilities data of DNA, RNA nucleotides names and the AA of protein.
 
 
 # Algorithm
 
-The program McComplex makes possible the construction of biological macro-complexes of protein-RNA / DNA interactions and protein-protein interactions. Here we are going to provide a complete explanation of how McComplex algorithm works
+The program McComplex makes possible the construction of biological macro-complexes of protein-protein/RNA/DNA. Here we are going to a more detailes explanation of how McComplex algorithm works
 
-The input to be passed to the program consists of a necessary argument: -i, which is the input directory that contains all of the binary interaction PDB files and these PDB files will be used to build the complex. In addition, there are some arguments that change the operation of the program according to the user needs by changing some parameters that the program will run. These are `-rmsd`, `-cl`, `-nc` and `-opt`, these have a certain values as default such a 0.3, 30 and 100 respectively. For instance, if the user believes that this complex should have more than 100 chains that should make changes in this parameter. Apart from these, it has the -pi and `-v` flags. When the `-pi` flag is present, it allows the program to save a PDB / MMCIF file each time the user adds a chain to the complex. The `-v` flag allows printing of the log progress at the command line.
+The input to be passed to the program consists of a necessary argument: -i, which is the input directory that contains all of the binary interaction PDB files. These PDB files will be used to build the complex. In addition, there are some arguments that change the operation of the program according to the user needs by changing some parameters that the program will run. These are `-rmsd`, `-cl`, `-nc` and `-opt`, and they are explained below.
 
-In order to be able to build a large complexes, a recursive approach is needed. In the first level of recursion, it creates a recursive loop in the list of binary-interaction PDB files contained in the input directory where it chooses a pairwise interaction. It tries to add all the pairs containing one of these two initial molecules in common in order to build a complex. In the following level of recursion, the complex model has grown and the addition of more subunits is tried with the model at that point, and so on and so forth. Therefore, it stars from a file of a pairwise interaction, the McComplex recursive function is called, which through the dictionary superimposition function performs the previously explained superimposition, rotation and addition in a recursive way.
+The main function uses a recursive approach. From the list of binary-interaction PDB files chooses the first one. It tries to add all the pairs containing one of these two initial molecules in common in order to build a complex. Them, it will update the files list and will get the next one. The first file will be considered as reference, and all the next ones queries. It will superimpose both chains and store the superimposition with the best RMSD. Then, it will look to the chain that was not superimposed, and in function of the clashes it has with the reference structure will be added or not. If added, the reference complex is now +1 chain bigger. This repeats until the number of chains specified has been reached or until the program reads all the files. Therefore, it stars from a file of a pairwise interaction, the McComplex recursive function is called, which through the dictionary superimposition function performs the previously explained superimposition, rotation and addition in a recursive way.
 
-When the chain number of the complex reaches the number specified in the `-nc` argument (ie equals), or if the chain count is not equal after files have been processed once without adding new chains to the complex, it will finish running.
-
-There are required certain parameters in order to run the program when the function is called and they are the following respectively:
+There are  certain required variables in order to run the program when the function is called and they are the following respectively:
 
 ref_structure: it's a reference structure, as it is the first PDB file in the first iteration, it also allows the number of chains to increase as iterations are repeated.
 files_list: This list contains all of the input files.
 it: It's an integer to follow the iteration of recursive currently in.
 parset_no_chains: It's an integer that saves the files that may have been processed or files with no chains added after processing.
 
-ArgumentParser, which contains all arguments that are necessary for the program to work or depends on the user's request. `command_arguments `are the following:
+ArgumentParser, which contains all arguments that are necessary for the program to work or depends on the user's request. `command_arguments` are the following:
 
 * _indir_: input directory.
 * _outdir_: output directory.
@@ -115,27 +131,16 @@ ArgumentParser, which contains all arguments that are necessary for the program 
 * _clashes\_threshold_: Indicates the maximum number of collision the chains must have with a reference structure. It will not change during a running time like the RMSD thresholds.
 * _optimization_: the user can choose if he/she wants to run an optimisation on output structure
 
-The file will be processed in each iteration. In the first step, a structure instance will be created from the file and then the function  `dict_superimposition` will be called by a reference, a query structure and RMSD threshold as parameters. This function handles the two chains in the query structure and all chains from the reference to make all possible superimpositions. On the other hand, only if the number of C4’, for nucleic acids or atoms and the number of CA for proteins are getting by `Key_atom_retriever` function that should be the same in both chains. In the case that  they are the same kind of molecule such as RNA, DNA, it returns a sorted list of keys that according to the RMSD value. It will returns a dictionary with a tuple of reference and query identifiers chains as key and the Superimposer instance of these two chains, a boolear parameter that indicates whether or not there is superimposition, the best RMSD score in this interation and the the counter of iteration updated.
+The file will be processed in each iteration. In the first step, a structure instance will be created from the file and then the function `dict_superimposition` will be called with a reference, a query structure and RMSD threshold as arguments. This function handles the two chains in the query structure and all chains from the reference to make all possible superimpositions, and rank them by RMSD.(Only if the number of C4’, for nucleic acids or atoms and the number of CA for proteins are the same in both chains, and they are the same kind of molecule. These atoms and molecule type are retrieved by the function `Key_atom_retriever` ). It returns a sorted dictionary whose keys are tuples of the reference and query chain IDs, and its values the superimposition object of those keys. Also, a boolear variable that indicates whether or not there is superimposition, the best RMSD score in this interation and the the counter of iteration updated.
 
 There are some cases where the boolean is False such as; if there is no common chain between sample structure and reference, or if the smallest RMSD is higher than threshold. In such cases, the current processed file is removed and added to the end of the list, thus, the future iterations will be processed and 1 will be added to the iteration, the function will be called again with files that do not add any chain counters.
 
-In any case, if the RMSD value of the specified reference chain < threshold and if there is a common chain, loops move through the ordered list of key-value tuples with Superimposer objects as value. If its RMSD > threshold, this loop will continue, and is going to the next entry of the ordered list of tuples.
-However, if RMSD < threshold, we take the superimposer instance, rotation and translation matrices are applied to key atoms of the putative chains that are not common with the reference structure, CA for proteins, or C4 for nucleic acids. with new coordinates, in cases where the user wants to add atoms, the existence of conflicts between the new coordinates of the putative chain and the reference structure is controlled by the program.
+In any case, if the RMSD value of the specified reference chain < threshold and if there is a common chain, it loops through the ordered list of key-value tuples with Superimposer objects as value. If its RMSD > threshold, this loop will continue, and is going to the next entry of the ordered list of tuples.
+However, if RMSD < threshold, we take the superimposer instance, rotation and translation matrices are applied to key atoms of the putative chains that are not common with the reference structure, CA for proteins, or C4 for nucleic acids. with new coordinates, in cases where the user wants to add atoms, the existence of clashes between the new coordinates of the putative chain and the reference structure is controlled by the program.
 
-The number of conflicts must be below the threshold for it to continue checking other reference chains. If none of the currently existing (putative) chains and set of reference chains to be added has more clashes than the threshold, this program indicates that the current chain to be added does not exist in the complex and also does not clash with any of the other chains that exist, so it is right to add. The task of the ID_creator function is to generate a unique ID for this chain that will not have any of the chains that currently exist in the complex. If the chain is correctly appended to the reference structure, according to the value of the `--pdb_iterations` argument, the program may create a PDB / MMCIF file that will contain the complex structure so far, as usual, the file is popped and added at the end of the list, on the other hand, any of the files that have not been added chains become 0, while the iterations counter increases by 1 and recursive function is called again by the program.
-Conversely, If a combination exceeds the clashes threshold, the addition of that rotated chain is canceled because it cannot be added to the complex, which means that it is already in the complex or clashing with a chain.When this happens, a boolean is created that takes the value True. This shows that the chain already exists in the complex. After the loop of reference chains is broken, the next superimposition in the tuple list will be observed. If any of the superimpositions yields does not provide a chain to add, the loop comes to the end, and then the current file is added to the end of the list after it is opened, the iterations and files that can not add a new chain to complex counters were programmed to increment by one and the function calls itself again.
+The number of clashes must be below the threshold for it to continue checking other chains. If none of the currently existing,susceptible to add (putative) chains and set of reference chains to be added has more clashes than the threshold, this program indicates that the current chain to be added does not exist in the complex and also does not clash with any of the other chains that exist, so it will be added. The task of the ID_creator function is to generate a unique ID for this chain that will not have any of the chains that currently exist in the complex. If the chain is correctly appended to the reference structure, according to the value of the `--pdb_iterations` argument, the program may create a PDB / MMCIF file that will contain the complex structure so far, as usual, the file is popped and added at the end of the list, on the other hand, any of the files that have not been added chains become 0, while the iterations counter increases by 1 and recursive function is called again by the program.
+Conversely, If a combination exceeds the clashes threshold, the addition of that rotated chain is canceled because it cannot be added to the complex, which means that it is already in the complex or clashing with a chain.When this happens, a boolean is created that takes the value True. This shows that the chain already exists in the complex. After the loop of reference chains is broken, the next superimposition in the tuple list will be observed. If any of the superimpositions does not provide a chain to add, the loop comes to the end, and then the current file is appended to the end of the list, the iterations and files that can not add a new chain to complex counters were programmed to increment by one and the function calls itself again.
 This function will stop running when the user has reached the number of chains requested or as we mentioned above, files are processed once without adding a new chain to the complex (no chains can be added). With this algorithm, the user does not have to specify the number of chains even if the complex structure does not know how many chains it has, at the same time the program will create the target complex and all files will be processed once without any chains added, and then the program will stop running.
-
-## Features
-The most distinct features of McComplex are:
-1. Building of macromolecular complexes from just simple  binary interaction PDB files as input. 
-2. Optimization of the final model using MODELLER.
-
-## Future approaches
-We have mention above that there are several ways for modelling PPIs. Our knowledge from now is very limited in order to develop a refined algorithms. However, we would have liked to improve the project in order to  improve the user experience and the accessibility to existing data.
-It would be interesting to offer different options of modelling. Depending on the user need it could choose a template-based or a template-free approach.
-Also it would be very useful to have an automatic download of structures from public databases, such as Uniprot or PDB. The structure and the sequences would be obtained by Biopython modules and some keyword and ID search.These would be use automatically as input data in a script that would build the pair of interacting molecules in order to run McComplex.
-Finally, we thought about making a .cmd file in order to executed ProSa 2003. In this way we would get a file with the z-score table and we would have been able to check if the structure was energetically valid.
 
 
 # Tutorial with examples
@@ -143,14 +148,14 @@ In this part, you can find how to use the McComplex with a comment line argument
 
 ## Clone repository
 
-- You can clone the repository to your local machine
+- Clone the repository to your local machine
 
 ```
 $ git clone https://github.com/ferranpgp/McComplex
 
 ```
 
-## Dependencies Installation
+## Installation
 
 In order to make McComplex work, you need some dependencies that must be installed beforehand to run the program. These are Python3, Biopython and pysimplelog. You can do it by hand or running:
 
@@ -184,17 +189,11 @@ Or you can do it manually with pip. However, Modeller should not be installer wi
 
 As said before, to generate any macrocomplex structure it is required a directory with a list of PDB files with paired structures. All the data needed to execute the following examples is in the folder `examples`, remember that you have to download it as described in the [installation](#installation) section.  
 
-- The output folder will be created in the same directory of the input folder if output director is not set it.In this case the out put will be found din the `examplex_output`folder. The output that will be place inside of the output folder will have 4 models called McComplex.MD0001.pdb, McComplex.MD0002.pdb, McComplex.MD0003.pdb, McComplex.MD0004.pdb, the optimized model (McComplex_optimized.pdb) and the original reference structure (McComplex.pdb) in order to compare with the models.  Also we will get a logging file were is store all the comments of the steps that the program has followed.
-
-> Inside the folder `examples` there are all the examples we will describe in this tutorial in the corresponding directories: `1gzx`, `5fj8`, etc. Each of them contains the required files to run McComplex and also a pdb file of the reference structure, `exampleRef.pdb`, in order to check the superimposition between the constructed model and the real structure.
-
-Here below, there is also an explanation of each complexes examples, some analysis about the time it takes the script to execute and the quality of the complex it builds.The examples we have choosed are: 1gzx, 3kuy, 4r3o, 5oom, 6m17
-
-> It is not mandatory to set the number of chains of the final complex, however we have added it in the commands so it finishes earlier.
+Inside the folder `examples` there are all the examples we will describe in this tutorial in the corresponding directories: `1gzx`, `5fj8`, etc. Each of them contains the required files to run McComplex. The reference structures are located in `examples/references`.
 
 ###  Example 1, 1GZX
 
-This first example, it is the protein 1GZX which is a small complex composed by two different amino acid chains. Each one of the chain appears two times with a stoichiometry 2A2B, so the final structure has four chains. The following command will recover the complete complex.
+This first example, it is the protein 1GZX which is a small complex composed by two different amino acid chains. Each one of the chain appears two times with a stoichiometry 2A2B, so the final structure has four chains. The following command will recover the complete complex. 
 
 Command line execution:
 
@@ -205,8 +204,10 @@ python3 McComplex_builder.py -i examples/1gzx -opt
 ```
  - `-i`, mandatory, it is followed by the directory of 1gzx folder containing all the binary-interaction PDB files
 
+ - `-opt`, optional, from the model, it will create files calles "McComplex.MDxxxx.pdb" with the MD optimization steps, and a final optimized model calles mcComplex_optimized.pdb . 
 
-The resulting structure is stored in the current directory, `1GZX`, in the folder `1GZX_output`.
+
+The resulting structure is stored in `examples/1gzx_output`.
 
 
 | **McComplex** | **Reference structure** | **Superimposition** |
@@ -214,31 +215,26 @@ The resulting structure is stored in the current directory, `1GZX`, in the folde
 | <img src="Images/1gzx/1gzx_McCOMP.png" width="300" height="280"> | <img src="Images/1gzx/1gzx_ref.png" width="300" height="280"> | <img src="Images/1gzx/1gzx_RMSD0000_146PRUNED.png" width="300" height="280"> |
 
 
-In the superimposition image we can observe the reference structure in red and the structure obtained with Complex Constructor in blue. We observe that the colours are mixed in most of the chains as our model fits the reference downloaded from PDB quite well.
+In the superimposition image we can observe the reference structure in cian and the output structure in ocher.**This color code applies to all the examples, adding the wyellow DNA/RNA when needed**. The model fits the reference very well.
 
 The computation time is around 26-27 seconds, and using Chimera we computed the RMSD between 146 pruned atom pairs and obtained a result of 0.000 angstroms.
 
 ### Examples 2, 3KUY
 
-3KUY is a complex composed by a DNA coil and a core made of protein chains. There are four  different amino acid chains and one nucleotide chain, all of them have stoichiometry two, making a total of 10 chains. The procedure to run this example is the same as the explained before. The data to construct the complex is inside the folder `examples/3kuy`. Execution with command-line arguments:
+3KUY is a complex composed by a DNA coil and a core made of protein chains. There are four peptidic chains and one nucleotide chain, all of them have stoichiometry two, a total of 10 chains. The procedure to run this example is the same as the explained before. The data to construct the complex is inside the folder `examples/3kuy`. 
 
 ```shell
 python3 McComplex_builder.py -i examples/3kuy -opt
 
 ```
-
- - `-i`, mandatory, it is followed by the directory of 3kuy folder containing all the binary-interaction PDB files
-
-
-The resulting structure is stored in the current directory, `3kuy`, in the folder `3kuy_output`.
+The resulting structure is stored in the current directory, `3kuy`, in the folder `examples/3kuy_output`.
 
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :---: | :---: | :---: |
 | <img src="Images/3kuy/3kuy_McCOMP.png" width="300" height="280"> | <img src="Images/3kuy/3kuy_ref.png" width="300" height="280"> | <img src="Images/3kuy/3kuy_RMSD0000_106PRUNED.png" width="300" height="280"> |
 
-In the superimposition image we can observe the amino acid chains of the reference structure in red and the DNA chains in yellow. The colours of the structure obtained with Complex Constructor are blue and orange respectively.   
-We observe that the whole complex is correctly constructed and after superimposing the obtained structure with the structure downloaded from PDB, we can see that both protein chains and DNA chains fit quite well with the reference structure.  
+We observe that the whole complex is correctly constructed and after superimposing the output structure with the structure downloaded from PDB, we can see that both protein chains and DNA chains fit quite well with the reference structure.  
 
 The computation time is around 65-66 seconds, and using Chimera we computed the RMSD between 106 pruned atom pairs and obtained a result of 0.000 angstroms.
 
@@ -250,7 +246,7 @@ This third example is the native assembly intermediate of the human mitochondria
 python3 McComplex_builder.py -i 5oom -opt
 
 ```
-The input folder contains 125 files and 53 different chains. It is worth to put attention to this structure due to that it has also RNA molecules, we can show the adtantion of the program  reconstructing not only PPIs but also proteing-DNA or protein-RNA interactions. We can see that  two chains which share the same molecule type can be superimposed and  the program will avoid to do the superimpositions if it doesn't fit this criterial. Moreover, after 243 iterations the 53 chains were built. We were not able to color the Nucleotides in the pictures of the original and reconstructed complex due to the computers being overloaded.
+The input folder contains 125 files and 53 different chains. It is worth to put attention to this structure due to that it has also RNA molecules.
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :---: | :---: | :---: |
@@ -260,77 +256,58 @@ The computation time is around 1275  seconds and  using Chimera we computed the 
 
 ### Examples 4, 4R3O
 
-This is a bigger complex is known as the Human 20S Proteasome (4R3O), it is only made of amino acid chains. It is a symmetric complex and it has 14 different chains. All the chains have a  stoichiometry  two, threfore the complex is build by  a total of 28 chains. 
-The input data can be found in `examples/4r3o`. Execution with command-line arguments:
+This is the Human 20S Proteasome (4R3O). It is a symmetric proteic complex with14 different chains. All the chains have a  stoichiometry  two. 
+The input data can be found in `examples/4r3o`.
 
 ```shell
 python3 McComplex_builder.py -i examples/4r3o -opt
-
 ```
-
- - `-i`, mandatory, it is followed by the directory of 4r3o folder containing all the binary-interaction PDB files
-
-The resulting structure is stored in the current directory, `4r3o`, in the folder `4r3o_output`.
+We can see how a third of the molecule is not fitting the refference, although it is like its shadow, this can be due to some issue in a superimposition, accumulated until the end of the construction, given that the program constructs over strucures product of previous superimpositions.
+The resulting structure is stored `examples/4r3o_output`.
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :----: | :----: | :----: |
 | <img src="Images/4r3o/4r3o_McCOMP.png" width="300" height="280"> | <img src="Images/4r3o/4r3o_ref.png" width="300" height="280"> | <img src="Images/4r3o/4r3o_RMSD000_250PRUNED.png" width="300" height="280"> |
-<<<<<<< HEAD
 
 The input folder has 86 files and 28 different chains and we can see that after 155 interations the total number of chains were built. 
 The computation time is around 1621 seconds  seconds and  using Chimera we computed the RMSD between 250 pruned atom pairs and obtained a result of 0.000 angstroms.
 
 
-=======
-
-The input folder has 86 files and 28 different chains and we can see that after 155 interations the total number of chains were built. 
-The computation time is around 1621 seconds  seconds and  using Chimera we computed the RMSD between 250 pruned atom pairs and obtained a result of 0.000 angstroms.
-
-
->>>>>>> b409bac90b55f463226d82d3943c211f78527787
 ### Example 5, 5FJ8
 
-This complex is composed by nucleotides and amino acid sequences. It is not a symmetric complex. Also, it has 20 different chains and non of them are repeated which means that all are unique in the complex. The required inputs for the construction are in `examples/5fj8`.
+This complex is composed by nucleotides andproteins. Also, it has 20 different chains and non of them are repeated which means that all are unique in the complex. The required inputs for the construction are in `examples/5fj8`.
 
 ```shell
 python3 McComplex_builder.py -i examples/5fj8 -nc 20 -opt
-
 ```
 
-The resulting structures is are stored in the current directory, `5fj8`, in the folder called `5fj8_output`.
+The resulting structures is are stored in the current directory, `5fj8`, in the folder called `5fj8_output`. It took several minutes to assemble, and the color of the reference is not changed due to the computers crashing.
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :---: | :---: | :---: |
 | <img src="Images/5fj8/5fj8_McCOMP.png" width="300" height="280"> | <img src="Images/5fj8/5fj8_ref.png" width="300" height="280"> | <img src="Images/5fj8/5fj8_RMSD000_1422pruned.png" width="300" height="280"> |
 
-The model that was created by McComplex and the reference structure are very well superimposed as in previous cases. In this case, the amino acid chain Q, have several amino acids labelled as 'unknown' in the pdb files. We have taken 35 amino acidos out from the pdb file called `5fj8_OQ` , therefore the chain Q will be partly contructed in the model. However as the complex is quite big and it takes a lot of time to build the entire complex, we set a number of chain equal to 20 the model did reach this chain. Nevertheless, the rest of the structure is correctly reproduced. `
+The model that was created by McComplex and the reference structure are very well superimposed. We set a number of chain equal to 20 the model did reach this chain, otherwise, it will not finish.
 
 The computation time is around 215 seconds and  using Chimera we computed the RMSD between 1422 pruned atom pairs and obtained a result of 0.000 angstroms.
 
 
 ### Example 6,  6M17
 
-6m17 structure is a membrane protein of the SARS coronavirus. It has been released at PDB on march 2020. In the last year, it has been very useful to know the structure of this membrane protein and how it interacts with others proteins. Due to it help to find a vaccine or a drug to cure infected people or prevent to the most venerable ones. This complex It has three different amino acid chains and all of them have stoichiometry two, making a total of 6 chains.  The data is inside the folder `examples/6m17`. Execution with command-line arguments:
+6m17 structure is a membrane protein of the SARS coronavirus. It was released at PDB on march 2020.It has three different amino acid chains and all of them have stoichiometry two, making a total of 6 chains.  The data is inside the folder `examples/6m17`. 
 
 ```shell
 $ python3 McComplex_builder.py -i examples/6m17 -opt
-
 ```
 
-The resulting structure is stored in the folder `6m17_ouput`, in the directory of the folder `6m17`.
+The resulting structure is stored in the folder `examples/6m17_ouput`.
 
 | **McComplex** | **Reference structure** | **Superimposition** |
 | :---: | :---: | :---: |
 | <img src="Images/6m17/6m17_McCOMP.png" width="300" height="280"> | <img src="Images/6m17/6m17_ref.png" width="300" height="280"> | <img src="Images/6m17/6m17_RMS000_748PRUNED.png" width="300" height="280"> |
-<<<<<<< HEAD
 
 We can see that the whole complex was constructed correctly. The superimposition between the McComplex structure with the original structure from PDB shows that all the chains fit quite well with the reference structure.
 
-=======
-
-We can see that the whole complex was constructed correctly. The superimposition between the McComplex structure with the original structure from PDB shows that all the chains fit quite well with the reference structure.
-
->>>>>>> b409bac90b55f463226d82d3943c211f78527787
 The computation time is around 106 seconds and  using Chimera we computed the RMSD between 748 pruned atom pairs and obtained a result of 0.000 angstroms.
 
 
@@ -338,38 +315,18 @@ The computation time is around 106 seconds and  using Chimera we computed the RM
 
 To understand deeply how superimposition work we will put an examples. If we have have two binary protein interactions, reference: **1-2**, query:**3-4**. There will be four superimpositions between the query chains and the reference, **3-2**, **3-1**, **4-2**, **4-1**. Then, they will be ranked by RMSD. It starts processing the lowest RMSD (and below a given threshold) superimposition, for example the 3-2 superimposition, then  3-1 and so on so forth. If we assume that chains 1 and 3 are equal, and it seems to be correct when it gets the interaction with the non-superimposed chain called 4. Now, what it is needed is to check whether or not  there are collisions or clashes between the non-superimposed chain and the references structure chains 1 and 2. If a high number of clashes are found means that the assumed chain to add is in the complex or it is colliding with another chain. So, even though the superimposition has a an acceptable RMDS value, the precence of clashed make the program to  rejecte that model. Then it looks for next best RMSD score and check the number of clashes again in the new superimposition and it repeats the same until all chains are superimposed. Also, it check if the number of clashes is below the threshold. Therefore, the final structure will be **2-1-4**. We can keep following the same strategy with the next binary interaction. However, there will be more superimpositions and comparison to make than chains.
 
-<<<<<<< HEAD
-<img src="Images/McComplex.jpeg"  height="700">
-=======
+
 <p align="center"><img src="Images/McComplex.jpeg"  height="700"></p>
->>>>>>> b409bac90b55f463226d82d3943c211f78527787
-
-
-### Structure of the program
-
-#### McComplex
-
-- `McComplex_builder.py`: main module of Complex Constructor. It connects with all the rest of modules.
-
-- `McComplex_functions.py`: module with all the functions needed to run the construction of macrocomplexes, as the `McComplex` function and `dictionary superimpositor`.
-
-- `parse_logger.py`: reads and organises the command-line arguments. Also it imports and initiates the logger
-
-- `optimization.py`: Modeller optimization script.
-
-- `sequence_data.py`: utilities data of DNA, RNA nucleotides names and the AA of protein.
 
 
 
-## Limitations
 
-- The main limitation of the program is the preparation of the input files. The PDB file must have each ID just once and the sequences must be unique, that means, if a structure has a stoichiometry 1A1B, the PDB file has to contain just once the chain A and B sequences.
+## Limitations and improvements
 
-- As we set that the identity of the sequences should be over 99%, the sequences in the PDB files should be almost identical in order to be identified as the same sequence. That means they must have the same number of residues and atoms.
-
-- The amino acids labelled as 'unknown' in the pdb files and as 'X' in the FASTA sequences, cannot be correctly identified so they should not be present in the input files. As a consequence, those chains containing unknown amino acids are just partly constructed in the final model.
-
-- It does not check the Z-score for the macrocomplexes with unknown structure through the energy analysis.
+Our knowledge from now is very limited in order to develop a refined algorithms. However, we would have liked to improve the project in order to improve the user experience and the accessibility to existing data. Also, previous evaluation of the files could lead to a more optimized algorithm. This one is very straight-forward and was accessible to us to understand, but it is not the most efficient. 
+Another caveat of our program is the lack of stoichiometry arguments and the mandatory equal length of the chains for superimposition. But at this stage of our programming skills, we were not able to implement it and we priorized making the main approach work (which on its own took most of our time)
+Also it would be very useful to have an automatic download of structures from public databases, such as Uniprot or PDB. The structure and the sequences would be obtained by Biopython modules and some keyword and ID search.These would be use automatically as input data in a script that would build the pair of interacting molecules in order to run McComplex.
+Finally, Integrating some kind of visual evaluation of the energies such a PROSA-like program would be interesting.
 
 
 ## Team
