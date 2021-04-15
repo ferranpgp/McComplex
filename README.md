@@ -13,10 +13,10 @@
 
 <h2 align="center"> Abstract </h2>
 
-In this project, through bioinformatic resources, we have developed a python based program capable of reconstruct biological macro-complexes of protein-protein and protein-DNA/RNA interactions using pairs of domains or chains interactions. Also, the target complex can be set to have a specific number of chains. The program is based on several bioinformatic features, including structural superimposition, energy optimization and sequence alignment. It gives a structure pdb file with the superimposed structures as a output. The main dependencies of the software are BioPython, NumPy and Modeller packages. This program can be downloaded from \url{https://github.com/ferra...}.
+In this project, through bioinformatic resources, we have developed a python based program capable of reconstructing biological macro-complexes of protein-protein and protein-DNA/RNA interactions using pairs of binary chain interactions. Also, the final complex can be set to have a specific number of chains. The program is based on several bioinformatic tools, including structural superimposition, and energy optimization. It creates a structure pdb file with the reconstructed macrocomplex. The main dependencies of the software are BioPython, NumPy , pysimplelog and Modeller packages. This program can be downloaded from \url{https://github.com/ferranpgp/McComplex}.
 
 ## Table of Content
-- [What McComplex is?](#What-McComplex-is?)
+- [What is McComplex?](#What-McComplex-is?)
 - [Biological Background](#Biological-Background)
         - [Structural superimposition](#Structural superimposition)
         - [Examples](#examples)
@@ -31,67 +31,57 @@ In this project, through bioinformatic resources, we have developed a python bas
 - [Limitations](#limitations)
 - [Team](#team)
 
-# What McComplex is?
+# What is McComplex?
 
-McComplex is a Python program whose goal is to model macrocomplexes molecules from pairs of domains or chains of a structure that will form the complex. It can be build complex from proteins chains, DNA and RNA strands. It also allow us to set some parameters to adjust the final complex according to the users needs.
-In essence, the builder approach is the superimpositions of structures between subunit chains from different PDB files given as input. The builder places pair by pair all the possible chains into a single model.
+McComplex is a Python program whose goal is to model macrocomplexes molecules from pairs of chains of a structure that will form the complex. It can build complexes from proteins chains, DNA and RNA strands. It also allow us to set some parameters to adjust the final complex according to the users needs.
+In essence, the builder approach is the superimpositions of structures between subunit chains from different PDB files given as input. The builder places pair by pair all the possible chains into a single model, and adds the chains that do not clash more that a given threshold.
 
 
 # Biological Background
 
-Proteins are the executive molecules in all organisms.They interact and form polypeptides complexes in order to perform their function. These interactions are done by the combination of distinct electrostatic forces such as hydrogen bonds, hydrophobic effect, disulphide bonds. Therefore, structure of a protein can reveal not only its function but also its evolutionary history. Nowadays, we use different techniques to visualise and model protein complexes such as NMR or X-ray crystallisation, and bioinformatics tools, which are very good at evaluating and refining the complexes.
+Proteins are the executive molecules in all organisms.They interact and form multi-molecular complexes in order to perform their function. These interactions are achieved by the combination of distinct electrostatic forces such as hydrogen bonds, hydrophobic effect, disulphide bonds. Nowadays, we use different techniques to solve and model protein complexes such as NMR or X-ray crystallisation, and bioinformatics tools.
 
 ## Protein-Protein Interaction and Complexes
 
-Understanding the Protein-Protein Interaction (PPI) and Complexes are crucial points to understand the function of the program. Quaternary protein structure can have more than one separated chains of proteins and they interact between them. These interaction are done by intermolecular bounds, such as hydrogen bounds, electrostatic interactions, pi stacking, cation-pi interaction, and more. These interactions stabilise the molecules and make the protein-protein interaction have a biological function.
+Understanding the Protein-Protein Interactions (PPI) and Complexes is key to understand the function of the program. Quaternary protein structures can have more than one separated chains of proteins and they interact between them. These interactions are done by intermolecular bounds, such as hydrogen bounds, electrostatic interactions, pi stacking, cation-pi interaction, and more. These interactions stabilize the molecules and make the protein-protein interaction stable enought to perform biological functions.
 
-This information gives us more evidence that proteins are no individual entities but they work in complex with other to have one one or more functions. These complexes can be by PPI or protein-nucleotides (DNA or RNA) interactions. Some examples are the nucleosome, the spliceosome, the proteasome and the ribosome. In other words, the reason that collecting PPIs can lead to a better understanding of protein functions, biological pathways and mechanisms of disease, the interest of modern structural genomics has changed to the study of macromolecular complexes. However, using just conventional methods is very hard and  expensive in terms of time, money, and expertise to do the assembly and the study of these macromolecular due to their large size and structural flexibility.(Biophys. J., 89, 2005) Since computational tools have been designed to store the in silico modeled 3D structures of proteins, many structures of individual subunits and/or interactions can be built in order to predict the complete macromolecular structure(Gupta et al., 2014). In general, all computational approaches to PPI prediction attempt to leverage knowledge of experimentally-determined previously known interactions, in order to predict new PPIs. (Pitre et al., 2008). Many advances have been achieved in this field, however the range of successful organisms is short and general frameworks are lacking at the moment.
+These complexes can be by PPI or protein-nucleotides (DNA or RNA) interactions. Some examples are the nucleosome, the spliceosome, the proteasome and the ribosome, the DNA packing, etc. In other words,collecting PPIs can lead to a better understanding of protein functions, biological pathways and mechanisms of disease. However, using just conventional methods is very hard and  expensive in terms of time, money, and expertise to do the assembly and the study of these macromolecular due to their large size and structural flexibility.(Biophys. J., 89, 2005) Since computational tools have been designed to store the in silico modeled 3D structures of proteins, many structures of individual subunits and/or interactions can be built in order to predict the complete macromolecular structure(Gupta et al., 2014). In general, all computational approaches to PPI prediction attempt to leverage knowledge of experimentally-determined previously known interactions, in order to predict new PPIs. (Pitre et al., 2008). Many advances have been achieved in this field, however the range of successful organisms is short and general frameworks are lacking at the moment.
 
-There are three main categories of methods for computational modelling of PPIs. These are the template-base modeling, which is base on evolutionary information of the sequence and the structure in order to do the PPI prediction. The integrative modelling mixes experimental data techniques with bioinformatics tolls to reduce the candidate complexes. Lastly _ab initio_ or template-free modelling which explores all the possible orientation between the interacting molecules, this method requires a lot of computations resources.
+There are three main categories of methods for computational modeling of complexes. These are the template-based modeling, which is based on evolutionary information of the sequence and the structure in order to do the PPI prediction; the integrative modelling mixes experimental data techniques with bioinformatics tools, such as superimposition of different PPIs, trhe one used un our program; and lastly _ab initio_ or template-free modelling which explores all the possible orientation between the interacting molecules, this method is computationally very expensive.
 
 
 ## Structural superimposition
 
-Structural superimposition is commonly used to compare multiple conformation of the same protein and to evaluate the quality of the alignments produced. This technique consists of setting the atoms of a new chain on top of the set of atoms of another chain minimizing the distances between the backbone atoms of both structures. These chains can be two proteins, two DNA/RNA molecules, etc. The difference with sequences alignment is that this last one considers that residues are those that fill the same position in the alignment according to a sequence similarity criteria. However, structural alignment considers that only the closest residues in the space are equivalent.
-
-
-# McComplex method
-
-The approach of our program is the superimpositions of structures between subunit chains using the module Superimposer from Bio.PDB.The algorithm can be divided in three steps. The first step is the performance of the superimposition of the binary protein structures. The second one is, energy levels in the models are taken into account to discard unlikely complexes. Lastly, it could do the the optimisation of the energy of the models if it is desired.
-
-
-#### Superimposition of the 3D structure
-To build the model, the program is given a list of PDB files, each of them containing information about two interacting chains, whether peptidic, DNA or RNA. Before to make the protein superposition we have to recognise that two sequences are the same type of molecule and put them together in the correct spot. To do so, we can overlap similar proteins chains from two different files to see whether o not two chains are alike in order to join them in the same model.
-
-We could find that two proteins with lower identity score may have similar structures in a 3D space, as a result of convergent evolution. Therefore, we bear in mind that in our model when two proteins have similar structure but big differences in the sequence the may have the same role.
-
-In these cases, to test if two proteins really have similar structures, translation and rotation matrices are measured in order to performs this. To do so, the query structure chain is superposed to the Cα coordinate of a reference chain .Similar structures will have atoms in almost the same positions, while different structures will be more distant. This similarity between the superimposed proteins can be used to calculate the Root-Mean-Square Deviation (RMDS). The RMDS is a quantitative measure that be calculated for any type and set of atoms, usually Cα are the most commons ones, of the superimposed molecules. The values are presented as Å and calculated by:
+Structural superimposition is commonly used to compare multiple conformations of the same protein and to evaluate the quality of the alignments/models produced for a target protein. This technique consists of setting the atoms of a new chain on top of the set of atoms of another chain minimizing the distances between the backbone atoms of both structures. These chains can be two proteins, two DNA/RNA molecules, etc. The difference with sequences alignment is that this last one considers that residues are those that fill the same position in the alignment according to a sequence similarity criteria. However, structural alignment considers that only the closest residues in the space are equivalent. For this purpose, translation and rotation matrices are calculated for one of the chains of the query structure to fit the coordinates of a chain of the other structure (reference). Once two molecules are superimposed, the typical measurement to quatify how different they are,is the Root-Mean-Square Deviation (RMSD). It is the average distance between two sets of atoms (usually the backbone atoms) of the superimposed molecules. Below a value of 3, both structures are considered the as equal. The values are presented as Å and calculated by:
 
 <img src="Images/RMSD.png" width="1000" height="100">
 
 Where *n* is the number of atom pairs that will be compared, *v* and *w* are the molecules that will be compared,  *i* is the number of the the residue, (*v<sub>i<sub>x</sub></sub>*, *v<sub>i<sub>y</sub></sub>*, *v<sub>i<sub>z</sub></sub>*) is the coordinate of one atom of *v* and (*w<sub>i<sub>x</sub></sub>*, *w<sub>i<sub>y</sub></sub>*, *w<sub>i<sub>z</sub></sub>*) are the coordinates from one atom of *w* superposed with *v* using a linear application of rotation and translation. To compute the RMSD between molecules *v* and *w*, we will use the coordinates of the backbone atoms of residues as close as possible in space after superposition.
 
-A value close to zero and below to 3 indicates a perfect fit of the structures. RMSD will increase when the differences between the protein structures increase.
 
 The main disadvantage of the RMSD lies in the fact that it is dominated by the amplitudes of errors. Two structures that are identical with the exception of a position of a single loop or a flexible terminus typically have a large global backbone RMSD and cannot be effectively superimposed by any algorithm that optimises the global RMSD.(Kufareva. I. et al. 2015). However it is easy and fast way to analyse the similarity of two structures.
 
+# McComplex method
 
-#### Checking number of clashes
+The approach of our program is the superimpositions between subunit chains using the module Superimposer from Bio.PDB. The algorithm can be divided in three steps. The first step is the performance of the superimposition of the binary protein structures. The second one is, energy levels in the models are taken into account to discard unlikely complexes. Lastly, it could do the the optimisation of the energy of the models if it is desired.
 
-After the superimposition and even thought we get a acceptable RMSD, our method is subjected to superimposition error. As the program is trying to build a multi-chain complex, it will analyse the chain of the sample structure that has not been superimposed. The atom coordinates of this non-superimposed chain has changed, they have rotated towards the reference structure due to the superimposition process. To be sure that this new rotation is correct, we have to check whether or not collisions or clashes appear when they were joined in the structure. It is crucial to take this into account, firstly because clashes are unfavourable interactions when atoms are too close. Also it will avoid impossible models that will be thermodynamically unstable and unlikely to happen, such as those with chains crossing with each other.
-To perform the calculation of clashes we use a K-dimensional tree data structure (KDTree). It uses N-dimensional vectors to find all points within a radius of a given point. Thus, we can know how many atoms have at least one atom within radius of centre. In a real proteins, clashes cannot happen, because if the distance between two atoms is minimum, the energy is maximum. For instance, repulsive forces prevail in Van Der Waals interactions, due to the collision of external electron clouds, making this interaction unfavourable. If the number of clashes is below a given threshold, we can allow this new rotation and add the chain in the reference structure.
+
+#### Superimposition of the 3D structure
+To build the model, the program is given a list of PDB files, each of them containing the coordinates of two interacting chains, whether peptidic, DNA or RNA. Then,the query structure chain is superposed to the Cα coordinate of a reference structure (the first file of the list). To do so, translation and rotation matrices are measured in order to performs this, using the superimposition tools that Biopython provides. 
+
+After the superimposition, if the RMSD is acceptable under our threshold, it has to check the chain of the sample structure that has not been superimposed. Due to the superimposition, the coordinates of this chain will have been changed, they will have been rotated. To accept this new coordinates, it must check if the atoms of this chain clashes any of the chains already in the reference structure. In our case, this is performed by a Neigbour_rearch object from Biopython. In this way we can know how many clashes this new putative chain is causing. We set a given threshold, but in a real situation,  clashes cannot happen, because at minimum distances between two atoms, the energy is too high for the structure to be stabilized. If the number of clashes is below a given threshold, we can allow this new rotation and add the chain in the reference structure. Then, the program runs recursively, so the reference structure will be this newly created one, and the program will repreat the procedure with the next pair of chains.
 
 
 #### Optimization
 
-Once the model is generated, in order to validate it, we can do the optimization of the structure with conjugate retraints.That is done by spatial restraints stequimetry (bond, angle, dihedral, torsiom and improper) and molecular dynamics in a 300K during an cetains number of iteration. The stats are written every 5 iteration in a log file.
+Once the model is generated, we can perform an optimization of the structure with Conjugate Gradients and Molecular Dynamics, using Modeller. The restraints selected are stereochemical(bond, angle, dihedral, torsion and improper) and the temperature to 300k, with a maximum of 50 iterations. The stats are written every 5 iteration in a log file.
 
 
-##### Stereochemical restraints :
+##### Stereochemical restraints from Modeller :
 
-* 'BOND'. This calculates covalent bond restraints (harmonic terms). It relies on the list of the atom-atom bonds for MODEL, prepared previously by the model.generate_topology() command. The mean values and force constants are obtained from the parameter library in memory. Only those bonds are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
-* 'ANGLE'. This calculates covalent angle restraints (harmonic terms). It relies on the list of the atom-atom-atom bonds for MODEL, prepared previously by the model.generate_topology() command. The mean values and force constants are obtained from the parameter library in memory. Only those angles are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
-* 'DIHEDRAL'. This calculates covalent dihedral angle restraints (cosine terms). It relies on the list of the atom-atom-atom-atom dihedral angles for MODEL, prepared previously by the model.generate_topology() command. The minima, phases, and force constants are obtained from the parameter library in memory. Only those dihedral angles are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
+* 'BOND'. Calculates covalent bond restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those bonds are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
+* 'ANGLE'. Calculates covalent angle restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those angles are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
+* 'DIHEDRAL'.Calculates covalent dihedral angle restraints (cosine terms).S The minima, phases, and force constants are obtained from the parameter library in memory. Only those dihedral angles are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
 * 'IMPROPER'. This calculates improper dihedral angle restraints (harmonic terms). The mean values and force constants are obtained from the parameter library in memory. Only those impropers are restrained that have all or at least restraint_sel_atoms in the selection atmsel.
 * 'STEREO'. This implies all 'BOND', 'ANGLE', 'DIHEDRAL', and 'IMPROPER' restraints.
 
@@ -113,16 +103,16 @@ There are required certain parameters in order to run the program when the funct
 
 ref_structure: it's a reference structure, as it is the first PDB file in the first iteration, it also allows the number of chains to increase as iterations are repeated.
 files_list: This list contains all of the input files.
-it: It's an integer to follow the iteration of recursive currently in.
-not_added: It's an integer that saves the files that may have been processed or files with no chains added after processing.
+iteration: It's an integer to follow the iteration of recursive currently in.
+parsed:no_chains: It is an integer that saves the files that may have been processed or files with no chains added after processing.
 
 ArgumentParser, which contains all arguments that are necessary for the program to work or depends on the user's request. command_arguments are the following:
 
 * _indir_: input directory.
-* _ir_: output directory.
-* _nc_: It indicates the number of chains that the final complex should have.
-* _RMSD_threshold_: This argument allows us to have a limit for superimpositions to be taken as correct. In addition, it will be constant and it means that RMSD will not change during the running time.
-* _clashes threshold_: Indicates the maximum number of collision the chains must have with a reference structure. It will not change during a running time like the RMSD thresholds.
+* _outdir_: output directory.
+* _number\_chains_: It indicates the number of chains that the final complex should have.
+* _rmsd\_threshold_: This argument allows us to have a limit for superimpositions to be taken as correct. In addition, it will be constant and it means that RMSD will not change during the running time.
+* _clashes\_threshold_: Indicates the maximum number of collision the chains must have with a reference structure. It will not change during a running time like the RMSD thresholds.
 * _optimization_: the user can choose if he/she wants to run an optimisation on output structure
 
 The file will be processed in each iteration. In the first step, a structure instance will be created from the file and then the function” Superimposition” will be called by a reference and a structure as a parameter. This function handles the two chains in the sample structure and all chains from the reference to make all possible superimpositions, on the other hand, only if the number of C4’, for nucleic acids or atoms and the number of CA for proteins are getting by Key_atom_retriever function that should be the same in both chains and if they are the same kind of molecule such as RNA, DNA. It returns a list of keys that is sorted according to the RMSD value, the values it will return are a tuple of reference & identifiers of the sample chains as key and as value is the Superimposer instance of these two chains.
