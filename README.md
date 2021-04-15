@@ -239,7 +239,7 @@ python3 McComplex_builder.py -i examples/1gzx -opt
  - `-i`, mandatory, it is followed by the directory of 1gzx folder containing all the binary-interaction PDB files
 
 
-The resulting structure is stored in the current directory, `1GZX`, in the folder `1GZX_output`.
+The resulting structure is stored in the current directory, `1gzx`, in the folder `1gzx_output`.
 
 
 | **McComplex** | **Reference structure** | **Superimposition** |
